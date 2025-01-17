@@ -1,6 +1,23 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
+import { DateRange, RangeKeyDict } from 'react-date-range'
+import { format } from 'date-fns'
+import 'react-date-range/dist/styles.css'
+import 'react-date-range/dist/theme/default.css'
+
+interface DateRangeSelection {
+  startDate: Date
+  endDate: Date
+  key: string
+}
+
+interface TripStop {
+  id: number
+  destination: string
+  dateRange: DateRangeSelection
+}
 
 const scrollToSection = (sectionId: string) => {
   const element = document.getElementById(sectionId)
@@ -10,6 +27,54 @@ const scrollToSection = (sectionId: string) => {
 }
 
 export default function Home() {
+  const [tripStops, setTripStops] = useState<TripStop[]>([{
+    id: 1,
+    destination: '',
+    dateRange: {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection'
+    }
+  }])
+
+  const [openDatePicker, setOpenDatePicker] = useState<number | null>(null)
+
+  const addNewStop = () => {
+    const newId = tripStops[tripStops.length - 1].id + 1
+    setTripStops([...tripStops, {
+      id: newId,
+      destination: '',
+      dateRange: {
+        startDate: new Date(),
+        endDate: new Date(),
+        key: 'selection'
+      }
+    }])
+  }
+
+  const updateStop = (id: number, field: keyof TripStop, value: string | DateRangeSelection) => {
+    setTripStops(tripStops.map(stop =>
+      stop.id === id ? { ...stop, [field]: value } : stop
+    ))
+  }
+
+  const handleDateRangeChange = (id: number, ranges: RangeKeyDict) => {
+    const selection = ranges.selection
+    if (selection.startDate && selection.endDate) {
+      updateStop(id, 'dateRange', {
+        startDate: selection.startDate,
+        endDate: selection.endDate,
+        key: 'selection'
+      })
+    }
+  }
+
+  const removeStop = (id: number) => {
+    if (tripStops.length > 1) {
+      setTripStops(tripStops.filter(stop => stop.id !== id))
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Hero Section */}
@@ -61,62 +126,99 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-4xl font-light text-blue-900">Plan Your Trip</h2>
-            <p className="text-xl text-blue-800/70">Choose your destination and travel dates</p>
+            <p className="text-xl text-blue-800/70">Choose your destinations and dates for each stop</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Destination Selection Card */}
-            <div className="bg-white p-8 space-y-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-2xl font-light text-blue-900">Choose Destination</h3>
-              <input
-                type="text"
-                placeholder="Search destinations..."
-                className="w-full p-4 bg-blue-50 text-blue-900 placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-xl transition-all duration-300"
-              />
-              <div className="space-y-4">
-                <h4 className="text-sm text-blue-400">Popular Destinations</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Tokyo', 'Seoul', 'Bangkok', 'Singapore', 'London', 'Paris'].map((city) => (
+          <div className="space-y-6">
+            {tripStops.map((stop, index) => (
+              <div
+                key={stop.id}
+                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+              >
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-2xl font-light text-blue-900">Stop {index + 1}</h3>
+                  {tripStops.length > 1 && (
                     <button
-                      key={city}
-                      className="px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-200 rounded-full"
+                      onClick={() => removeStop(stop.id)}
+                      className="text-red-500 hover:text-red-600 transition-colors duration-200"
                     >
-                      {city}
+                      Remove
                     </button>
-                  ))}
+                  )}
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Destination Selection */}
+                  <div className="space-y-4">
+                    <label className="block text-sm text-blue-400">Destination</label>
+                    <input
+                      type="text"
+                      placeholder="Search destinations..."
+                      value={stop.destination}
+                      onChange={(e) => updateStop(stop.id, 'destination', e.target.value)}
+                      className="w-full p-4 bg-blue-50 text-blue-900 placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-xl transition-all duration-300"
+                    />
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {['Tokyo', 'Seoul', 'Bangkok', 'Singapore', 'London', 'Paris'].map((city) => (
+                        <button
+                          key={city}
+                          onClick={() => updateStop(stop.id, 'destination', city)}
+                          className="px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-200 rounded-full"
+                        >
+                          {city}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Date Selection */}
+                  <div className="space-y-4 relative">
+                    <label className="block text-sm text-blue-400">Date Range</label>
+                    <button
+                      onClick={() => setOpenDatePicker(openDatePicker === stop.id ? null : stop.id)}
+                      className="w-full p-4 bg-blue-50 text-blue-900 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+                    >
+                      {format(stop.dateRange.startDate, 'MMM dd, yyyy')} - {format(stop.dateRange.endDate, 'MMM dd, yyyy')}
+                    </button>
+
+                    {openDatePicker === stop.id && (
+                      <div className="absolute z-10 top-full left-0 mt-2">
+                        <div className="bg-white rounded-2xl shadow-xl p-4">
+                          <DateRange
+                            ranges={[stop.dateRange]}
+                            onChange={(ranges) => handleDateRangeChange(stop.id, ranges)}
+                            moveRangeOnFirstSelection={false}
+                            months={1}
+                            direction="horizontal"
+                            className="border-0"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
+            ))}
+
+            {/* Add New Stop Button */}
+            <div className="text-center">
+              <button
+                onClick={addNewStop}
+                className="px-6 py-3 text-blue-600 hover:text-blue-700 font-light transition-colors duration-200"
+              >
+                + Add Another Stop
+              </button>
             </div>
 
-            {/* Date Selection Card */}
-            <div className="bg-white p-8 space-y-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-2xl font-light text-blue-900">Select Dates</h3>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm text-blue-400">Departure Date</label>
-                  <input
-                    type="date"
-                    className="w-full p-4 bg-blue-50 text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-xl transition-all duration-300"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm text-blue-400">Return Date</label>
-                  <input
-                    type="date"
-                    className="w-full p-4 bg-blue-50 text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-xl transition-all duration-300"
-                  />
-                </div>
-              </div>
+            {/* Next Step Button */}
+            <div className="mt-16 text-center">
+              <button
+                onClick={() => scrollToSection('activities')}
+                className="px-8 py-4 text-lg font-light bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:from-blue-700 hover:to-teal-600 transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Next: Choose Activities
+              </button>
             </div>
-          </div>
-
-          <div className="mt-16 text-center">
-            <button
-              onClick={() => scrollToSection('activities')}
-              className="px-8 py-4 text-lg font-light bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:from-blue-700 hover:to-teal-600 transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              Next: Choose Activities
-            </button>
           </div>
         </div>
       </section>
