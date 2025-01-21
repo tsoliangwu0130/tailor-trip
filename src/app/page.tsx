@@ -31,8 +31,8 @@ export default function Home() {
     id: 1,
     destination: '',
     dateRange: {
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: new Date(new Date().setHours(0, 0, 0, 0)),
+      endDate: new Date(new Date().setHours(0, 0, 0, 0)),
       key: 'selection'
     }
   }])
