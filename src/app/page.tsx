@@ -92,7 +92,7 @@ export default function Home() {
           <div className="mt-10">
             <button
               onClick={() => scrollToSection('planning')}
-              className="px-8 py-4 text-lg font-light bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:from-blue-700 hover:to-teal-600 transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md"
             >
               Start Planning
             </button>
@@ -214,7 +214,7 @@ export default function Home() {
             <div className="mt-16 text-center">
               <button
                 onClick={() => scrollToSection('activities')}
-                className="px-8 py-4 text-lg font-light bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:from-blue-700 hover:to-teal-600 transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md"
               >
                 Next: Choose Activities
               </button>
@@ -256,7 +256,7 @@ export default function Home() {
           <div className="mt-16 text-center">
             <button
               onClick={() => scrollToSection('chat')}
-              className="px-8 py-4 text-lg font-light bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:from-blue-700 hover:to-teal-600 transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md"
             >
               Next: Customize with AI
             </button>
@@ -290,7 +290,7 @@ export default function Home() {
                   />
                   <button
                     type="button"
-                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:from-blue-700 hover:to-teal-600 transition-all duration-300 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    className="px-8 py-4 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
                   >
                     Send
                   </button>
@@ -302,7 +302,7 @@ export default function Home() {
           <div className="mt-16 text-center">
             <Link
               href="/plan"
-              className="px-8 py-4 text-lg font-light bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:from-blue-700 hover:to-teal-600 transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 inline-block"
+              className="px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md inline-block"
             >
               Generate Complete Itinerary
             </Link>
