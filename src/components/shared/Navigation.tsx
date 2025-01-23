@@ -2,49 +2,55 @@ import Link from 'next/link'
 
 export default function Navigation() {
   return (
-    <nav className="bg-white shadow">
+    <nav className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 justify-between">
-          <div className="flex">
-            <div className="flex flex-shrink-0 items-center">
-              <Link href="/" className="text-xl font-bold text-indigo-600">
-                TailorTrip
-              </Link>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-              >
-                Plan Trip
-              </Link>
-              <Link
-                href="/itineraries"
-                className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-              >
-                Popular Trips
-              </Link>
-              <Link
-                href="/chat"
-                className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-              >
-                AI Assistant
-              </Link>
-            </div>
+        <div className="flex h-16 justify-between items-center">
+          {/* Logo Section */}
+          <div className="flex items-center">
+            <Link
+              href="/"
+              className="text-2xl font-light bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text hover:from-blue-700 hover:to-teal-600 transition-all duration-300"
+            >
+              TailorTrip
+            </Link>
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
+
+          {/* Navigation Links */}
+          <div className="hidden sm:flex sm:space-x-8">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center px-4 py-2 text-sm font-light text-blue-900 hover:bg-blue-50 rounded-full transition-all duration-300"
+            >
+              Plan Trip
+            </Link>
+            <Link
+              href="/itineraries"
+              className="inline-flex items-center px-4 py-2 text-sm font-light text-blue-900 hover:bg-blue-50 rounded-full transition-all duration-300"
+            >
+              Popular Trips
+            </Link>
+            <Link
+              href="/chat"
+              className="inline-flex items-center px-4 py-2 text-sm font-light text-blue-900 hover:bg-blue-50 rounded-full transition-all duration-300"
+            >
+              AI Assistant
+            </Link>
+          </div>
+
+          {/* Right Section - Notifications & Profile */}
+          <div className="flex items-center space-x-4">
+            {/* Notification Button */}
             <button
               type="button"
-              className="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="p-2 text-blue-900/70 hover:bg-blue-50 rounded-full transition-all duration-300"
             >
               <span className="sr-only">View notifications</span>
               <svg
-                className="h-6 w-6"
+                className="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -54,13 +60,14 @@ export default function Navigation() {
               </svg>
             </button>
 
-            <div className="relative ml-3">
+            {/* Profile Button */}
+            <div className="relative">
               <button
                 type="button"
-                className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                className="flex items-center space-x-3 px-4 py-2 rounded-full hover:bg-blue-50 transition-all duration-300"
               >
-                <span className="sr-only">Open user menu</span>
-                <div className="h-8 w-8 rounded-full bg-gray-200"></div>
+                <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-600 to-teal-500"></div>
+                <span className="text-sm font-light text-blue-900">Profile</span>
               </button>
             </div>
           </div>
