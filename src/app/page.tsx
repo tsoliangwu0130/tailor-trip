@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { DateRange, RangeKeyDict } from 'react-date-range'
 import { format } from 'date-fns'
 import 'react-date-range/dist/styles.css'
@@ -39,14 +39,40 @@ export default function Home() {
 
   const [openDatePicker, setOpenDatePicker] = useState<number | null>(null)
 
+  // 添加 ref 用於檢測點擊外部
+  const datePickerRef = useRef<HTMLDivElement>(null)
+
+  // 處理點擊外部關閉
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+        setOpenDatePicker(null)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   const addNewStop = () => {
-    const newId = tripStops[tripStops.length - 1].id + 1
+    const lastStop = tripStops[tripStops.length - 1]
+
+    // 檢查上一站是否已經選擇了結束日期
+    if (lastStop.dateRange.startDate.getTime() === lastStop.dateRange.endDate.getTime()) {
+      // 如果沒有選擇結束日期，不允許新增
+      alert('請先為當前站點選擇結束日期')
+      return
+    }
+
+    const newId = lastStop.id + 1
     setTripStops([...tripStops, {
       id: newId,
       destination: '',
       dateRange: {
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: lastStop.dateRange.endDate, // 設置開始日期為上一站的結束日期
+        endDate: lastStop.dateRange.endDate, // 初始時結束日期等於開始日期
         key: 'selection'
       }
     }])
@@ -60,12 +86,67 @@ export default function Home() {
 
   const handleDateRangeChange = (id: number, ranges: RangeKeyDict) => {
     const selection = ranges.selection
-    if (selection.startDate && selection.endDate) {
-      updateStop(id, 'dateRange', {
-        startDate: selection.startDate,
-        endDate: selection.endDate,
-        key: 'selection'
-      })
+    if (!selection.startDate || !selection.endDate) return
+
+    const stopIndex = tripStops.findIndex(stop => stop.id === id)
+
+    // 第一站的處理邏輯
+    if (stopIndex === 0) {
+      // 如果選擇的開始日期早於今天，則不更新
+      const today = new Date(new Date().setHours(0, 0, 0, 0))
+      if (selection.startDate < today) return
+
+      // 更新第一站日期
+      const updatedStops = [...tripStops]
+      updatedStops[0] = {
+        ...updatedStops[0],
+        dateRange: {
+          startDate: selection.startDate,
+          endDate: selection.endDate,
+          key: 'selection'
+        }
+      }
+
+      // 如果有下一站，同步更新下一站的開始日期
+      if (stopIndex + 1 < updatedStops.length) {
+        updatedStops[1] = {
+          ...updatedStops[1],
+          dateRange: {
+            startDate: selection.endDate,
+            endDate: selection.endDate, // 重置結束日期為開始日期
+            key: 'selection'
+          }
+        }
+      }
+
+      setTripStops(updatedStops)
+    } else {
+      // 非第一站只能選擇結束日期
+      const prevStopEndDate = tripStops[stopIndex - 1].dateRange.endDate
+
+      const updatedStops = [...tripStops]
+      updatedStops[stopIndex] = {
+        ...updatedStops[stopIndex],
+        dateRange: {
+          startDate: prevStopEndDate,
+          endDate: selection.endDate,
+          key: 'selection'
+        }
+      }
+
+      // 如果有下一站，同步更新下一站的開始日期
+      if (stopIndex + 1 < updatedStops.length) {
+        updatedStops[stopIndex + 1] = {
+          ...updatedStops[stopIndex + 1],
+          dateRange: {
+            startDate: selection.endDate,
+            endDate: selection.endDate, // 重置結束日期為開始日期
+            key: 'selection'
+          }
+        }
+      }
+
+      setTripStops(updatedStops)
     }
   }
 
@@ -206,16 +287,71 @@ export default function Home() {
                     </button>
 
                     {openDatePicker === stop.id && (
-                      <div className="absolute z-10 top-full left-0 mt-2">
-                        <div className="bg-white rounded-2xl shadow-xl p-4">
-                          <DateRange
-                            ranges={[stop.dateRange]}
-                            onChange={(ranges) => handleDateRangeChange(stop.id, ranges)}
-                            moveRangeOnFirstSelection={false}
-                            months={1}
-                            direction="horizontal"
-                            className="border-0"
+                      <div className="absolute z-10 top-full left-0 mt-2" ref={datePickerRef}>
+                        <div className="bg-white rounded-2xl shadow-xl p-4 relative overflow-hidden">
+                          {/* Close Button */}
+                          <button
+                            onClick={() => setOpenDatePicker(null)}
+                            className="absolute right-4 top-4 z-10 p-1 hover:bg-blue-50 rounded-full transition-colors duration-200"
+                          >
+                            <svg
+                              className="w-5 h-5 text-blue-900/70"
+                              fill="none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                          </button>
+
+                          {/* Background Pattern */}
+                          <div
+                            className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                            style={{
+                              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230066FF' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                              backgroundSize: '30px 30px'
+                            }}
                           />
+                          <div className="relative">
+                            <DateRange
+                              ranges={[stop.dateRange]}
+                              onChange={(ranges) => handleDateRangeChange(stop.id, ranges)}
+                              moveRangeOnFirstSelection={false}
+                              months={1}
+                              direction="horizontal"
+                              className="border-0"
+                              rangeColors={['#2563eb']}
+                              color="#2563eb"
+                              minDate={
+                                tripStops.findIndex(s => s.id === stop.id) === 0
+                                  ? new Date() // 第一站最早可選今天
+                                  : tripStops[tripStops.findIndex(s => s.id === stop.id) - 1].dateRange.endDate // 其他站最早可選上一站的結束日期
+                              }
+                              disabledDay={(date) => {
+                                const stopIndex = tripStops.findIndex(s => s.id === stop.id)
+                                if (stopIndex === 0) {
+                                  // 第一站不能選今天以前的日期
+                                  const today = new Date(new Date().setHours(0, 0, 0, 0))
+                                  return date < today
+                                }
+                                // 非第一站不能選上一站結束日期以前的日期
+                                const prevStopEndDate = tripStops[stopIndex - 1].dateRange.endDate
+                                return date < prevStopEndDate
+                              }}
+                              editableDateInputs={false} // 禁止直接輸入日期
+                              showSelectionPreview={true}
+                              showPreview={true}
+                              preventSnapRefocus={true}
+                              disabled={
+                                tripStops.findIndex(s => s.id === stop.id) !== 0
+                                  ? { startDate: true } // 非第一站禁用開始日期選擇
+                                  : undefined
+                              }
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
@@ -228,7 +364,16 @@ export default function Home() {
             <div className="text-center">
               <button
                 onClick={addNewStop}
-                className="px-6 py-3 text-blue-600 hover:text-blue-700 font-light transition-colors duration-200"
+                className={`px-6 py-3 font-light transition-colors duration-200 ${
+                  tripStops[tripStops.length - 1].dateRange.startDate.getTime() ===
+                  tripStops[tripStops.length - 1].dateRange.endDate.getTime()
+                    ? 'text-blue-300 cursor-not-allowed' // 禁用狀態
+                    : 'text-blue-600 hover:text-blue-700' // 啟用狀態
+                }`}
+                disabled={
+                  tripStops[tripStops.length - 1].dateRange.startDate.getTime() ===
+                  tripStops[tripStops.length - 1].dateRange.endDate.getTime()
+                }
               >
                 + Add Another Stop
               </button>
