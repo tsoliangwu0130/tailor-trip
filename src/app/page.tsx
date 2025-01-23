@@ -6,6 +6,22 @@ import { DateRange, RangeKeyDict } from 'react-date-range'
 import { format } from 'date-fns'
 import 'react-date-range/dist/styles.css'
 import 'react-date-range/dist/theme/default.css'
+import {
+  CalendarDaysIcon,
+  MapPinIcon,
+  PlusCircleIcon,
+  XMarkIcon,
+  ChevronRightIcon,
+  PaperAirplaneIcon,
+  BuildingOfficeIcon,
+  CameraIcon,
+  ShoppingBagIcon,
+  GlobeAltIcon,
+  MusicalNoteIcon,
+  FilmIcon,
+  HeartIcon,
+  GlobeAsiaAustraliaIcon
+} from '@heroicons/react/24/outline'
 
 interface DateRangeSelection {
   startDate: Date
@@ -198,7 +214,10 @@ export default function Home() {
 
         <div className="mt-32 grid gap-16 md:grid-cols-3 max-w-6xl mx-auto px-4">
           <div className="space-y-4 text-center md:text-left hover:transform hover:scale-105 transition-transform duration-300">
-            <h3 className="text-xl font-light text-blue-900">AI-Powered Planning</h3>
+            <div className="flex items-center justify-center md:justify-start space-x-2">
+              <GlobeAsiaAustraliaIcon className="w-6 h-6 text-blue-600" />
+              <h3 className="text-xl font-light text-blue-900">AI-Powered Planning</h3>
+            </div>
             <p className="text-blue-800/70">
               Utilizing advanced AI technology to recommend the best itineraries based on your preferences.
             </p>
@@ -241,13 +260,16 @@ export default function Home() {
                 className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-2xl font-light text-blue-900">Stop {index + 1}</h3>
+                  <div className="flex items-center space-x-2">
+                    <MapPinIcon className="w-6 h-6 text-blue-600" />
+                    <h3 className="text-2xl font-light text-blue-900">Stop {index + 1}</h3>
+                  </div>
                   {tripStops.length > 1 && (
                     <button
                       onClick={() => removeStop(stop.id)}
-                      className="text-red-500 hover:text-red-600 transition-colors duration-200"
+                      className="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200"
                     >
-                      Remove
+                      <XMarkIcon className="w-5 h-5" />
                     </button>
                   )}
                 </div>
@@ -255,7 +277,10 @@ export default function Home() {
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Destination Selection */}
                   <div className="space-y-4">
-                    <label className="block text-sm text-blue-400">Destination</label>
+                    <label className="flex items-center space-x-2 text-sm text-blue-400">
+                      <BuildingOfficeIcon className="w-4 h-4" />
+                      <span>Destination</span>
+                    </label>
                     <input
                       type="text"
                       placeholder="Search destinations..."
@@ -278,7 +303,10 @@ export default function Home() {
 
                   {/* Date Selection */}
                   <div className="space-y-4 relative">
-                    <label className="block text-sm text-blue-400">Date Range</label>
+                    <label className="flex items-center space-x-2 text-sm text-blue-400">
+                      <CalendarDaysIcon className="w-4 h-4" />
+                      <span>Date Range</span>
+                    </label>
                     <button
                       onClick={() => setOpenDatePicker(openDatePicker === stop.id ? null : stop.id)}
                       className="w-full p-4 bg-blue-50 text-blue-900 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
@@ -364,18 +392,19 @@ export default function Home() {
             <div className="text-center">
               <button
                 onClick={addNewStop}
-                className={`px-6 py-3 font-light transition-colors duration-200 ${
+                className={`flex items-center justify-center space-x-2 px-6 py-3 mx-auto font-light transition-all duration-200 ${
                   tripStops[tripStops.length - 1].dateRange.startDate.getTime() ===
                   tripStops[tripStops.length - 1].dateRange.endDate.getTime()
-                    ? 'text-blue-300 cursor-not-allowed' // 禁用狀態
-                    : 'text-blue-600 hover:text-blue-700' // 啟用狀態
+                    ? 'text-blue-300 cursor-not-allowed'
+                    : 'text-blue-600 hover:text-blue-700'
                 }`}
                 disabled={
                   tripStops[tripStops.length - 1].dateRange.startDate.getTime() ===
                   tripStops[tripStops.length - 1].dateRange.endDate.getTime()
                 }
               >
-                + Add Another Stop
+                <PlusCircleIcon className="w-5 h-5" />
+                <span>Add Another Stop</span>
               </button>
             </div>
 
@@ -383,9 +412,10 @@ export default function Home() {
             <div className="mt-16 text-center">
               <button
                 onClick={() => scrollToSection('activities')}
-                className="px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md"
+                className="flex items-center justify-center space-x-2 px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md mx-auto"
               >
-                Next: Choose Activities
+                <span>Next: Choose Activities</span>
+                <ChevronRightIcon className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -409,22 +439,25 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              'Sightseeing',
-              'Food & Dining',
-              'Shopping',
-              'Nature & Outdoors',
-              'Arts & Culture',
-              'Entertainment',
-              'Sports & Recreation',
-              'Relaxation',
-              'Adventure',
-            ].map((activity) => (
+              { name: 'Sightseeing', icon: CameraIcon },
+              { name: 'Food & Dining', icon: BuildingOfficeIcon },
+              { name: 'Shopping', icon: ShoppingBagIcon },
+              { name: 'Nature & Outdoors', icon: GlobeAltIcon },
+              { name: 'Arts & Culture', icon: MusicalNoteIcon },
+              { name: 'Entertainment', icon: FilmIcon },
+              { name: 'Sports & Recreation', icon: HeartIcon },
+              { name: 'Relaxation', icon: HeartIcon },
+              { name: 'Adventure', icon: GlobeAsiaAustraliaIcon },
+            ].map(({ name, icon: Icon }) => (
               <button
-                key={activity}
+                key={name}
                 className="p-8 bg-white text-left rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
               >
-                <h3 className="text-xl font-light text-blue-900 group-hover:text-blue-600">{activity}</h3>
-                <p className="mt-2 text-blue-800/70">Experience the best of {activity.toLowerCase()}</p>
+                <div className="flex items-center space-x-3">
+                  <Icon className="w-6 h-6 text-blue-600 group-hover:text-blue-700 transition-colors duration-300" />
+                  <h3 className="text-xl font-light text-blue-900 group-hover:text-blue-600">{name}</h3>
+                </div>
+                <p className="mt-2 text-blue-800/70">Experience the best of {name.toLowerCase()}</p>
               </button>
             ))}
           </div>
@@ -432,9 +465,10 @@ export default function Home() {
           <div className="mt-16 text-center">
             <button
               onClick={() => scrollToSection('chat')}
-              className="px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md"
+              className="flex items-center justify-center space-x-2 px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md mx-auto"
             >
-              Next: Customize with AI
+              <span>Next: Customize with AI</span>
+              <ChevronRightIcon className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -473,9 +507,10 @@ export default function Home() {
                   />
                   <button
                     type="button"
-                    className="px-8 py-4 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
+                    className="flex items-center justify-center space-x-2 px-8 py-4 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
                   >
-                    Send
+                    <span>Send</span>
+                    <PaperAirplaneIcon className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -485,9 +520,10 @@ export default function Home() {
           <div className="mt-16 text-center">
             <Link
               href="/plan"
-              className="px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md inline-block"
+              className="flex items-center justify-center space-x-2 px-8 py-4 text-lg font-light bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 rounded-full shadow-sm hover:shadow-md mx-auto inline-flex"
             >
-              Generate Complete Itinerary
+              <span>Generate Complete Itinerary</span>
+              <ChevronRightIcon className="w-5 h-5" />
             </Link>
           </div>
         </div>
